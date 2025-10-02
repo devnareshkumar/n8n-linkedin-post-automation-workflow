@@ -1,5 +1,4 @@
 # Automated LinkedIn Post Generator with Google Sheets & n8n
-<img width="1567" height="492" alt="image" src="https://github.com/user-attachments/assets/e0453ae2-0fb8-4d7a-bd84-2bd779252b8d" />
 
 This n8n workflow automatically **picks** new topics from a Google Sheet, generates LinkedIn post content (and an accompanying image), publishes the post to LinkedIn, and marks the topic as used—providing an end-to-end automated content publishing system.
 
@@ -77,7 +76,7 @@ Create a Google Sheet with columns like:
 
 ## 🖼 Example Workflow Screenshot
 
-*(Add a screenshot of the workflow visual layout here for clarity)*
+*<img width="1567" height="492" alt="image" src="https://github.com/user-attachments/assets/e0453ae2-0fb8-4d7a-bd84-2bd779252b8d" />*
 
 ---
 
