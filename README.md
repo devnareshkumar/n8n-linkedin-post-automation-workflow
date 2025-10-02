@@ -134,6 +134,57 @@ Below is how each node in this automated LinkedIn posting workflow works, and wh
 
 ### 8. Post with Image (Merge/Combine Node)
 - **Purpose:** Combines the post text and generated image into one payload for publishing.
-- **Configure:**
-  - Set mode to "combineAll" asHere is your README.md content, formatted for Markdown and ready to copy-paste:
+- **Configure:**  
+  - Set mode to "combineAll" as needed.
+  - Route both post text and image as inputs from previous nodes.
 
+### 9. Create a post (LinkedIn API Node)
+- **Purpose:** Publishes the post (text + image) to your LinkedIn account or page.
+- **Configure:**  
+  - Connect LinkedIn API credentials.
+  - Map post content from previous nodes.
+  - Set visibility (public, connections, etc.).
+  - Confirm the image attachment settings as required by LinkedIn API.
+
+### 10. Update topic to used in sheet (Google Sheets Node)
+- **Purpose:** Marks the posted topic as "used" so it won’t be selected again.
+- **Configure:**  
+  - Credentials: Google Sheets account.
+  - Document: Same sheet as topic selection.
+  - Sheet: Same tab.
+  - Row number: Pass from topic-fetching node (e.g., `{{ $json["row_number"] }}`).
+  - Status: Set value to "used".
+  - Output: Sheet updated for tracking.
+
+---
+
+## Sequence Overview
+
+- Manual trigger starts workflow.
+- Topic is fetched from Google Sheets where Status = "unused".
+- AI generates LinkedIn post text.
+- Text is formatted and an image prompt is generated.
+- AI image is created and merged with post content.
+- Post and image are published to LinkedIn.
+- Topic status is updated to "used" in Google Sheets, preventing repeats.
+- Repeat for each new topic in your sheet!
+
+---
+
+## Customizing
+
+- Update prompt instructions, brand styling, sheet structure, or add more steps for personalization.
+- You can import/share this workflow in n8n by uploading the exported JSON file found in this repo.
+
+---
+
+## 📝 Credits
+
+Built by [@dev](https://github.com/devnareshkumar/).  
+Inspired by marketing, automation, and content creation best practices using n8n!
+
+---
+
+## 📜 License
+
+MIT — feel free to use, modify, and share!
