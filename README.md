@@ -1,227 +1,140 @@
-Automated LinkedIn Post Generator with Google Sheets & n8n
-This n8n workflow automatically picks new topics from a Google Sheet, generates LinkedIn post content (and an accompanying image), publishes the post to LinkedIn, and marks the topic as used—providing an end-to-end automated content publishing system.
+# Automated LinkedIn Post Generator with Google Sheets & n8n
+<img width="1567" height="492" alt="image" src="https://github.com/user-attachments/assets/e0453ae2-0fb8-4d7a-bd84-2bd779252b8d" />
 
-✨ Features
-Google Sheets Integration: Reads topics from a Google Sheet for collaborative and easy topic management.
+This n8n workflow automatically **picks** new topics from a Google Sheet, generates LinkedIn post content (and an accompanying image), publishes the post to LinkedIn, and marks the topic as used—providing an end-to-end automated content publishing system.
 
-Dynamic Topic Selection: Picks only topics marked as unused in your sheet, so no repetition.
+---
 
-AI Content Generation: Uses n8n and AI nodes to draft engaging LinkedIn posts from your topics.
+## ✨ Features
 
-Automated Image Creation: Generates relevant images for each post (optional/modify for your stack).
+- **Google Sheets Integration:** Reads topics from a Google Sheet for collaborative and easy topic management.
+- **Dynamic Topic Selection:** Picks only topics marked as `unused` in your sheet, so no repetition.
+- **AI Content Generation:** Uses n8n and AI nodes to draft engaging LinkedIn posts from your topics.
+- **Automated Image Creation:** Generates relevant images for each post (optional/modify for your stack).
+- **Auto-posts to LinkedIn:** Completely hands-free publishing to your LinkedIn profile or page.
+- **Auto-Updates Sheet:** Marks each topic as used after posting to avoid repeats in future runs.
 
-Auto-posts to LinkedIn: Completely hands-free publishing to your LinkedIn profile or page.
+---
 
-Auto-Updates Sheet: Marks each topic as used after posting to avoid repeats in future runs.
+## 📋 How It Works
 
-📋 How It Works
-Reads topics from a connected Google Sheet where Status = unused.
+1. Reads topics from a connected Google Sheet where `Status = unused`.
+2. Generates LinkedIn post text and image for the fetched topic.
+3. Posts to LinkedIn with the text and generated image.
+4. Updates the Google Sheet to set the topic status to `used`.
 
-Generates LinkedIn post text and image for the fetched topic.
+---
 
-Posts to LinkedIn with the text and generated image.
+## 🚀 Getting Started
 
-Updates the Google Sheet to set the topic status to used.
+### 1. Prerequisites
 
-🚀 Getting Started
-1. Prerequisites
-An n8n instance (local, Docker, or cloud)
+- An [n8n](https://n8n.io/) instance (local, Docker, or cloud)
+- Google account (for Google Sheets API)
+- LinkedIn account (for API access)
+- Google Cloud Platform project with **Google Sheets API** enabled
+- n8n credentials for Google Sheets and LinkedIn
 
-Google account (for Google Sheets API)
+### 2. Setup Google Sheets
 
-LinkedIn account (for API access)
-
-Google Cloud Platform project with Google Sheets API enabled
-
-n8n credentials for Google Sheets and LinkedIn
-
-2. Setup Google Sheets
 Create a Google Sheet with columns like:
 
-Topic	Status
-Best Free Google Courses ...	unused
-Top AI Courses for Developers	unused
-Share the sheet with your Google API service/account if needed.
+| Topic                           | Status  |
+|----------------------------------|---------|
+| Best Free Google Courses ...     | unused  |
+| Top AI Courses for Developers    | unused  |
 
-3. Import the Workflow
-Download or copy the exported workflow JSON from this repo.
+- Share the sheet with your Google API service/account if needed.
 
-In n8n, go to Workflows > Import, and upload the JSON.
+### 3. Import the Workflow
 
-4. Configure Credentials
-Set up your Google Sheets credentials in n8n.
+- Download or copy the exported workflow JSON from this repo.
+- In n8n, go to **Workflows > Import**, and upload the JSON.
 
-See n8n docs: Google Sheets
+### 4. Configure Credentials
 
-Set up your LinkedIn credentials in n8n.
+- Set up your **Google Sheets credentials** in n8n.
+  - See n8n docs: [Google Sheets](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.googlesheets/)
+- Set up your **LinkedIn credentials** in n8n.
+  - See n8n docs: [LinkedIn](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.linkedin/)
 
-See n8n docs: LinkedIn
+### 5. Update Workflow References
 
-5. Update Workflow References
-In the "Get row(s) in sheet" node:
+**In the "Get row(s) in sheet" node:**
+- Select your Google Sheet and the correct sheet/tab
+- Ensure the filter is set to `Status = unused`
 
-Select your Google Sheet and the correct sheet/tab
+**In the "Update row in sheet" node:**
+- Reference the same sheet, and map the row number from the selected topic
+- Set status to `used` to avoid repeat posting
 
-Ensure the filter is set to Status = unused
+### 6. Test & Run
 
-In the "Update row in sheet" node:
+- Execute the workflow manually or set to run on a schedule.
+- Each run will pick, post, and update as designed.
 
-Reference the same sheet, and map the row number from the selected topic
+---
 
-Set status to used to avoid repeat posting
+## 🖼 Example Workflow Screenshot
 
-6. Test & Run
-Execute the workflow manually or set to run on a schedule.
+*(Add a screenshot of the workflow visual layout here for clarity)*
 
-Each run will pick, post, and update as designed.
+---
 
-🖼 Example Workflow Screenshot
-(Add a screenshot of the workflow visual layout here for clarity)
+## 🛠 How to Use: Step-by-Step Node Explanations
 
-🛠 How to Use: Step-by-Step Node Explanations
 Below is how each node in this automated LinkedIn posting workflow works, and what you should configure for each step:
 
-1. Manual Trigger (When clicking 'Execute workflow')
-Purpose: Allows you to run the workflow manually or as per your desired trigger.
+### 1. Manual Trigger (When clicking 'Execute workflow')
+- **Purpose:** Allows you to run the workflow manually or as per your desired trigger.
+- **Configure:** No special setup needed; use to start the workflow by click or connect to another trigger (like a schedule or webhook for automation).
+
+### 2. Get topic from Google Sheet
+- **Purpose:** Reads your Google Sheet to pick the next available topic, filtering for rows where `Status` is `"unused"`.
+- **Configure:**
+  - Connect to your Google Sheets account.
+  - Document: Set the spreadsheet URL.
+  - Sheet: Enter the sheet/tab name (e.g., `topics`).
+  - Filter: Set `Status = unused`.
+  - This node will pass the selected topic and its row details for further processing.
+
+### 3. Message a model (Perplexity/Chat Model)
+- **Purpose:** Generates LinkedIn post text using AI, based on the topic.
+- **Configure:**
+  - Credential: Connect your Perplexity/AI API.
+  - Mode: Run once for each item.
+  - Prompt: Sends topic from Google Sheet (e.g., `Write a LinkedIn post about {{$json["Topic"]}}`)
+  - Output: Produces the post content in plain text for LinkedIn.
+
+### 4. Format Post Text (Code/Set Node)
+- **Purpose:** Refines, extracts, or structures the text generated by the AI model to be suitable for LinkedIn.
+- **Configure:**
+  - Extracts post content from model output (maps answer to `postText` variable).
+  - Optionally add any custom formatting or parsing logic as per your brand needs.
+
+### 5. Message a model (Perplexity Image Prompting)
+- **Purpose:** Generates a descriptive image prompt from the post content.
+- **Configure:**
+  - Credential: Perplexity/AI API for images.
+  - Mode: Runs per post.
+  - Use the post text to create an image prompt (pass content from previous node).
+  - Output: AI-generated prompt text, ready for image generation.
+
+### 6. Prompt for Image (Code/Set Node)
+- **Purpose:** Extracts or cleans the image prompt from the AI model output.
+- **Configure:**
+  - Maps the image prompt value for use in the image creation step.
+  - No special configuration usually needed.
+
+### 7. Generate Image Polination (HTTP Request/Image Generation)
+- **Purpose:** Calls an AI image generation API (like Pollinations) with the prompt to generate a custom image for the LinkedIn post.
+- **Configure:**
+  - Set the image API endpoint and required parameters.
+  - Pass the generated image prompt from the previous node.
+  - Output: Receives an image file or URL.
+
+### 8. Post with Image (Merge/Combine Node)
+- **Purpose:** Combines the post text and generated image into one payload for publishing.
+- **Configure:**
+  - Set mode to "combineAll" asHere is your README.md content, formatted for Markdown and ready to copy-paste:
 
-Configure: No special setup needed; use to start the workflow by click or connect to another trigger (like a schedule or webhook for automation).
-
-2. Get topic from Google Sheet
-Purpose: Reads your Google Sheet to pick the next available topic, filtering for rows where Status is "unused".
-
-Configure:
-
-Connect to your Google Sheets account.
-
-Document: Set the spreadsheet URL.
-
-Sheet: Enter the sheet/tab name (e.g., topics).
-
-Filter: Set Status = unused.
-
-This node will pass the selected topic and its row details for further processing.
-
-3. Message a model (Perplexity/Chat Model)
-Purpose: Generates LinkedIn post text using AI, based on the topic.
-
-Configure:
-
-Credential: Connect your Perplexity/AI API.
-
-Mode: Run once for each item.
-
-Prompt: Sends topic from Google Sheet (e.g., Write a LinkedIn post about {{$json["Topic"]}})
-
-Output: Produces the post content in plain text for LinkedIn.
-
-4. Format Post Text (Code/Set Node)
-Purpose: Refines, extracts, or structures the text generated by the AI model to be suitable for LinkedIn.
-
-Configure:
-
-Extracts post content from model output (maps answer to postText variable).
-
-Optionally add any custom formatting or parsing logic as per your brand needs.
-
-5. Message a model (Perplexity Image Prompting)
-Purpose: Generates a descriptive image prompt from the post content.
-
-Configure:
-
-Credential: Perplexity/AI API for images.
-
-Mode: Runs per post.
-
-Use the post text to create an image prompt (pass content from previous node).
-
-Output: AI-generated prompt text, ready for image generation.
-
-6. Prompt for Image (Code/Set Node)
-Purpose: Extracts or cleans the image prompt from the AI model output.
-
-Configure:
-
-Maps the image prompt value for use in the image creation step.
-
-No special configuration usually needed.
-
-7. Generate Image Polination (HTTP Request/Image Generation)
-Purpose: Calls an AI image generation API (like Pollinations) with the prompt to generate a custom image for the LinkedIn post.
-
-Configure:
-
-Set the image API endpoint and required parameters.
-
-Pass the generated image prompt from the previous node.
-
-Output: Receives an image file or URL.
-
-8. Post with Image (Merge/Combine Node)
-Purpose: Combines the post text and generated image into one payload for publishing.
-
-Configure:
-
-Set mode to "combineAll" as needed.
-
-Route both post text and image as inputs from previous nodes.
-
-9. Create a post (LinkedIn API Node)
-Purpose: Publishes the post (text + image) to your LinkedIn account or page.
-
-Configure:
-
-Connect LinkedIn API credentials.
-
-Map post content from previous nodes.
-
-Set visibility (public, connections, etc.).
-
-Confirm the image attachment settings as required by LinkedIn API.
-
-10. Update topic to used in sheet (Google Sheets Node)
-Purpose: Marks the posted topic as "used" so it won’t be selected again.
-
-Configure:
-
-Credentials: Google Sheets account.
-
-Document: Same sheet as topic selection.
-
-Sheet: Same tab.
-
-Row number: Pass from topic-fetching node ({{ $json["row_number"] }}).
-
-Status: Set value to "used".
-
-Output: Sheet updated for tracking.
-
-Sequence Overview:
-
-Manual trigger starts workflow.
-
-Topic is fetched from Google Sheets where Status = "unused".
-
-AI generates LinkedIn post text.
-
-Text is formatted and an image prompt is generated.
-
-AI image is created and merged with post content.
-
-Post and image are published to LinkedIn.
-
-Topic status is updated to "used" in Google Sheets, preventing repeats.
-
-Repeat for each new topic in your sheet!
-
-Customizing:
-
-Update prompt instructions, brand styling, sheet structure, or add more steps for personalization.
-
-You can import/share this workflow in n8n by uploading the exported JSON file found in this repo.
-
-📝 Credits
-Built by [@dev](https://github.com/devnareshkumar/).
-Inspired by marketing, automation, and content creation best practices using n8n!
-
-📜 License
-MIT — feel free to use, modify, and share!
