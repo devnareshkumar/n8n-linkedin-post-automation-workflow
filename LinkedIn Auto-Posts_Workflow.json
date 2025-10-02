@@ -1,0 +1,403 @@
+{
+  "name": "Scheduled LinkedIn Auto-Posts_Polination_GoogleSheets",
+  "nodes": [
+    {
+      "parameters": {
+        "person": "-D0peCWmEv",
+        "text": "={{$json.postText}}",
+        "shareMediaCategory": "IMAGE",
+        "additionalFields": {
+          "visibility": "PUBLIC"
+        }
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        1616,
+        16
+      ],
+      "id": "56d5681a-cc6c-4f17-ac63-eccf57c771fc",
+      "name": "Create a post",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "7R8HafIB5Nq0Bhud",
+          "name": "LinkedIn account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://image.pollinations.ai/prompt/{{encodeURIComponent($json.prompt.replace(\"Professional LinkedIn-style image prompt:\", \"\"))}}?width=1024&height=1024&nologo=true",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1168,
+        192
+      ],
+      "id": "de84ee41-5c58-48c8-9aec-cec213b4e688",
+      "name": "Generate Image Polination"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1408,
+        16
+      ],
+      "id": "b6a8e772-9b99-487a-a671-f80ac2bc9a41",
+      "name": "Post with Image"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        32,
+        0
+      ],
+      "id": "6f23a7a4-9340-4262-97cc-6debeade3c75",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "model": "sonar-pro",
+        "messages": {
+          "message": [
+            {
+              "content": "=Role:\nYou are a LinkedIn content writer.\n\nGoal:\nWrite a LinkedIn post about {{$json.Topic}}. The output must be plain text, suitable for direct copy-paste into LinkedIn.\n\nInstructions:\n\nUse simple, natural English with a friendly, conversational tone.\n\nDo NOT use bold, italics, underlines, asterisks (*), quotation marks (\"), dashes (– or --), slashes (/), or any markdown/special formatting characters—except for hashtags.\n\nDo NOT use numbered or bracketed references (like [1], [2]).\n\nDo NOT use academic or citation styles.\n\nDo NOT include bullet points.\n\nStructure the post in 4 parts:\n\nHook (attention-grabbing opening, 1–2 lines)\n\nInsight/Story (short explanation, example, or observation)\n\nValue/Takeaway (lesson, advice, or trend)\n\nCall-to-action or question for engagement\n\nKeep sentences short and clear.\n\nUse line breaks between small chunks of text for readability.\n\nMust include 1–3 relevant hashtags at the end.\n\nDo not put hashtags in quotes and do not modify the # symbol.\n\nNotes:\n\nWord count: 120–200 words.\n\nTone: professional yet approachable.\n\nThe output should ONLY be the LinkedIn post, with no extra commentary.\n\nOutput Style:\n\nProvide only the LinkedIn post text.\n\nNo preface, no explanation, no extra formatting.\n\nEnd with hashtags."
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 1,
+      "position": [
+        368,
+        0
+      ],
+      "id": "e770cdb5-1262-4c52-876a-f1b312f6c961",
+      "name": "Message a model",
+      "credentials": {
+        "perplexityApi": {
+          "id": "GK6rkDD9oNpYvGZn",
+          "name": "Perplexity account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Extract the post content from Perplexity response\nreturn {\n  json: {\n    postText: $json.choices[0].message.content\n  }\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        0
+      ],
+      "id": "5ac57114-01c3-4f95-8cc1-19f3f4329070",
+      "name": "Format Post Text1"
+    },
+    {
+      "parameters": {
+        "model": "sonar-pro",
+        "messages": {
+          "message": [
+            {
+              "content": "=Role:\nYou are an expert AI image prompt engineer who creates descriptive, professional-quality prompts for AI image generators.\n\nGoal:\nAnalyze the given LinkedIn post content, understand its main message, tone, and context, then generate a single, concise, and descriptive image prompt that visually represents the post.\n\nInstructions:\n\nRead the entire LinkedIn post provided below.\n\nExtract the core topic, tone, and main takeaway.\n\nTranslate the post into a visual concept:\n\nScene or setting (background, environment)\n\nMain subject(s) (people, objects, symbols, abstract elements)\n\nMood/emotion (professional, inspiring, futuristic, innovative, etc.)\n\nStyle (realistic, modern illustration, futuristic, minimal, corporate, etc.)\n\nEnsure the image concept aligns with LinkedIn’s professional context.\n\nOutput only the final image prompt (no explanation).\n\nPlaceholder:\n\n{{$json.postText}}\n\n\nNotes:\n\nKeep the image prompt 1–3 sentences.\n\nNo extra formatting, no explanation.\n\nOutput should be plain text, ready for an image generation API.\n\nOutput Style:\nProvide only the AI image prompt."
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 1,
+      "position": [
+        768,
+        400
+      ],
+      "id": "f7bfb191-1907-4fb5-97fe-543b0518a544",
+      "name": "Message a model1",
+      "credentials": {
+        "perplexityApi": {
+          "id": "GK6rkDD9oNpYvGZn",
+          "name": "Perplexity account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  prompt: $json.choices[0].message.content\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        400
+      ],
+      "id": "edbcd890-5bbe-4928-b9ca-04ceb219feb2",
+      "name": "Prompt for Image1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1I7Dndd8Crf79lVBSVLOeECcS7lucKcNpyh2A0k4WqCE/edit?usp=sharing",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "topics",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "unused"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "eda86477-fb18-4e79-9bce-dccea1e8baf5",
+      "name": "Get topic from google sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "o8IFTLJFfdnOZUTE",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1I7Dndd8Crf79lVBSVLOeECcS7lucKcNpyh2A0k4WqCE/edit?usp=sharing",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "topics",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Get topic from google sheet').item.json.row_number }}",
+            "Status": "used"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1824,
+        16
+      ],
+      "id": "3891bdb7-8ec5-4b01-b6e6-6b388540630c",
+      "name": "Update topic to used in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "o8IFTLJFfdnOZUTE",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Generate Image Polination": {
+      "main": [
+        [
+          {
+            "node": "Post with Image",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Post with Image": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get topic from google sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Format Post Text1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Post Text1": {
+      "main": [
+        [
+          {
+            "node": "Post with Image",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Prompt for Image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prompt for Image1": {
+      "main": [
+        [
+          {
+            "node": "Generate Image Polination",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get topic from google sheet": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a post": {
+      "main": [
+        [
+          {
+            "node": "Update topic to used in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c1d88c5e-9dfb-4c68-b087-640781b09aa3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1b87bfedf89a4db2cdd2acaf183cce174e3d1c6c4ec98fe9fd9d5c2f4cd113b0"
+  },
+  "id": "AbdAzDT398DZ6hyX",
+  "tags": [
+    {
+      "createdAt": "2025-09-06T16:52:12.219Z",
+      "updatedAt": "2025-09-06T16:52:12.219Z",
+      "id": "fcrqjAozWwtrZN6P",
+      "name": "linkedin"
+    },
+    {
+      "createdAt": "2025-09-06T16:51:24.110Z",
+      "updatedAt": "2025-09-06T16:51:24.110Z",
+      "id": "rxVgonJWa7o0Wsjo",
+      "name": "linkedinpost"
+    }
+  ]
+}
